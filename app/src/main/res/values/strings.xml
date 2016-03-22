@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MapDraw</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="google_app_id">AIzaSyDMZgl5NBgz8_41fC_mCutJ-OKq5wv8bcY</string>
+    <!-- Googlemap menu items -->
+    <string name="NormalMenu">Noraml</string>
+    <string name="HybridMenu">Hybrid</string>
+    <string name="SatelliteMenu">Satellite</string>
+    <string name="TerrainMenu">Terrain</string>
+    <string name="NoneMenu">None</string>
+
+    <string name="menu_settings">Settings</string>
+    <string name="str_place_icon">Place Icon</string>
+    <string name="hnt_et_location">Search Google Maps</string>
+</resources>

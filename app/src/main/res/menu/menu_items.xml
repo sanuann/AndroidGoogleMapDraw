@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.jobin.mapzero.MainActivity">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/Normal_Map"
+            app:showAsAction="never"
+            android:title="@string/NormalMenu" />
+        <item
+            android:id="@+id/Hybrid_Map"
+            app:showAsAction="never"
+            android:title="@string/HybridMenu" />
+        <item
+            android:id="@+id/Satellite_Map"
+            app:showAsAction="never"
+            android:title="@string/SatelliteMenu" />
+        <item
+            android:id="@+id/Terrain_Map"
+            app:showAsAction="never"
+            android:title="@string/TerrainMenu" />
+        <item
+            android:id="@+id/None_Map"
+            app:showAsAction="never"
+            android:title="@string/NoneMenu" />
+    </group>
+</menu>
