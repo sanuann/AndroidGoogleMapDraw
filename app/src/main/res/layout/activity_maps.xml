@@ -3,29 +3,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MapsActivity" >
+    tools:context=".MapsActivity">
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
-        <Button
-            android:id="@+id/place_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/str_place_icon"
-            android:layout_alignParentRight="true" />
-
         <EditText android:imeOptions="actionSearch"
             android:id="@+id/et_location"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:inputType="text"
-            android:hint="@string/hnt_et_location"
-            android:layout_toLeftOf="@id/place_icon" />
+            android:hint="@string/hnt_et_location" />
+
+        <RadioGroup
+            android:id="@+id/rg_views"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/et_location">
+
+            <RadioButton
+                android:id="@+id/rb_normal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/NormalMenu"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/rb_hybrid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/HybridMenu"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rb_satellite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/SatelliteMenu"
+                android:checked="false" />
+
+            <RadioButton
+                android:id="@+id/rb_terrain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/TerrainMenu"
+                android:checked="false" />
+
+        </RadioGroup>
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Place Marker"/>
+
+        <Button
+            android:id="@+id/btn_line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Draw line"/>
+
+    </LinearLayout>
 
     <fragment
         android:id="@+id/map"

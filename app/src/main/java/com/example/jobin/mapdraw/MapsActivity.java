@@ -1,6 +1,5 @@
 package com.example.jobin.mapdraw;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,12 +13,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -47,6 +46,7 @@ public class MapsActivity extends FragmentActivity implements
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MapsActivity";
+    private boolean place_marker_flag;
     private GoogleMap mMap;
     private ArrayList<LatLng> arrayPoints = null;
     PolylineOptions polylineOptions;
@@ -65,11 +65,10 @@ public class MapsActivity extends FragmentActivity implements
                 .findFragmentById(R.id.map); // get handle to the fragment and pass it to resource id of the <fragment> element
         mapFragment.getMapAsync(this); // set the callback on the fragment
 
+
         // Getting reference to editText of the layout activity_maps
         final EditText etLocation = (EditText) findViewById(R.id.et_location);
-
-
-        // Defining editText search event listener for the editText
+         // Defining editText search event listener for the editText
         OnEditorActionListener findClickListener = new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -87,33 +86,41 @@ public class MapsActivity extends FragmentActivity implements
                 return false;
             }
         };
-
-        // Setting editText search click event listener for the keyboard search icon
+         // Setting editText search click event listener for the keyboard search icon
         etLocation.setOnEditorActionListener(findClickListener);
 
-        Button place_button = (Button) findViewById(R.id.place_icon);
-        place_button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
 
-                AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create(); //Read Update
+        // Getting reference to RadioGroup of the layout activity_maps and set map type selected
+        RadioGroup rgViews = (RadioGroup) findViewById(R.id.rg_views);
+        rgViews.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
-                class alertDialogOnClickListener implements DialogInterface.OnClickListener {
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch(which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                //<do something>;
-                                Toast.makeText(getApplicationContext(), "you have pressed Default", Toast.LENGTH_SHORT).show();
-                                break;
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //<do something>;
-                                Toast.makeText(getApplicationContext(), "you have pressed Custom", Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                    }
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.rb_normal) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                } else if (checkedId == R.id.rb_hybrid) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                } else if (checkedId == R.id.rb_satellite) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                } else if (checkedId == R.id.rb_terrain) {
+                    mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 }
-                alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new alertDialogOnClickListener());
-                alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new alertDialogOnClickListener());
-                alertDialog.show();
+            }
+        });
+
+        // Getting reference to place marker and draw line button and set corresponding flag
+        Button place_marker = (Button) findViewById(R.id.btn_marker);
+        place_marker.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                place_marker_flag = true;
+            }
+
+        });
+
+        Button draw_line = (Button) findViewById(R.id.btn_line);
+        draw_line.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                place_marker_flag = false;
             }
 
         });
@@ -132,12 +139,12 @@ public class MapsActivity extends FragmentActivity implements
 
         if (checkPlayServices()) {
             mMap = googleMap;
-            // Sets the map type to be "hybrid"
+            // Sets default map type to be "hybrid"
             mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-            googleMap.setIndoorEnabled(true);
-            googleMap.setTrafficEnabled(true);
+            //mMap.setIndoorEnabled(true);
+            //mMap.setTrafficEnabled(true);
             // 3D building
-            googleMap.setBuildingsEnabled(true);
+            //mMap.setBuildingsEnabled(true);
             // Get zoom button
             mMap.getUiSettings().setZoomControlsEnabled(true);
             mMap.setOnMapClickListener(this);
@@ -147,44 +154,49 @@ public class MapsActivity extends FragmentActivity implements
 
     @Override
     public void onMapClick(final LatLng point) {
-        final MarkerOptions marker = new MarkerOptions();
-        AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create(); //Read Update
 
-        class alertDialogOnClickListener implements DialogInterface.OnClickListener {
-            public void onClick(DialogInterface dialog, int which) {
-                switch(which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        //add marker
+        if (place_marker_flag) { // place marker only
+            final MarkerOptions marker = new MarkerOptions();
+            AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create(); //Read Update
 
-                        marker.position(point)
-                                .draggable(true);
-                        mMap.addMarker(marker);
-                        Toast.makeText(getApplicationContext(), "you have pressed Default", Toast.LENGTH_SHORT).show();
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        //add marker
-                        BitmapDescriptor custom_icon = BitmapDescriptorFactory.fromResource(R.drawable.map_marker_flag_icon);
-                        marker.position(point)
-                                .icon(custom_icon)
-                                .draggable(true);
-                        mMap.addMarker(marker);
-                        Toast.makeText(getApplicationContext(), "you have pressed Custom", Toast.LENGTH_SHORT).show();
-                        break;
+            class alertDialogOnClickListener implements DialogInterface.OnClickListener {
+                public void onClick(DialogInterface dialog, int which) {
+                    switch(which){
+                        case DialogInterface.BUTTON_POSITIVE:
+                            //add marker
+                            marker.position(point)
+                                    .draggable(true);
+                            mMap.addMarker(marker);
+                            //Toast.makeText(getApplicationContext(), "you have pressed Default", Toast.LENGTH_SHORT).show();
+                            break;
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            //add custom marker
+                            BitmapDescriptor custom_icon = BitmapDescriptorFactory.fromResource(R.drawable.map_marker_flag_icon);
+                            marker.position(point)
+                                    .icon(custom_icon)
+                                    .draggable(true);
+                            mMap.addMarker(marker);
+                            //Toast.makeText(getApplicationContext(), "you have pressed Custom", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 }
             }
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new alertDialogOnClickListener());
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new alertDialogOnClickListener());
+            alertDialog.show();
         }
-        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new alertDialogOnClickListener());
-        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new alertDialogOnClickListener());
-        alertDialog.show();
 
+        // draw lines to connect the points on map
+        else {
+            // setting polyline in the map
+            polylineOptions = new PolylineOptions();
+            polylineOptions.color(Color.RED);
+            polylineOptions.width(5);
+            arrayPoints.add(point);
+            polylineOptions.addAll(arrayPoints);
+            mMap.addPolyline(polylineOptions);
+        }
 
-        // setting polyline in the map
-        polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.RED);
-        polylineOptions.width(5);
-        arrayPoints.add(point);
-        polylineOptions.addAll(arrayPoints);
-        mMap.addPolyline(polylineOptions);
     }
 
     @Override
@@ -221,30 +233,6 @@ public class MapsActivity extends FragmentActivity implements
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.Normal_Map:
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                return true;
-            case R.id.Hybrid_Map:
-                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                return true;
-            case R.id.Satellite_Map:
-                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                return true;
-            case R.id.Terrain_Map:
-                mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                return true;
-            case R.id.None_Map:
-                mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-
-    }
-
     // An AsyncTask class for accessing the GeoCoding Web Service
     private class GeocoderTask extends AsyncTask<String, Void, List<Address>> {
 
@@ -273,7 +261,7 @@ public class MapsActivity extends FragmentActivity implements
             // Adding Markers on Google Map for each matching address
             for (int i = 0; i < addresses.size(); i++) {
 
-                Address address = (Address) addresses.get(i);
+                Address address = addresses.get(i);
 
                 // Creating an instance of GeoPoint, to display in Google Map
                 latLng = new LatLng(address.getLatitude(), address.getLongitude());
