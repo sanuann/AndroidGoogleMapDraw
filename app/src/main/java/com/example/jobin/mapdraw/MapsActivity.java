@@ -24,9 +24,11 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -51,14 +53,17 @@ public class MapsActivity extends FragmentActivity implements
         setContentView(R.layout.activity_maps);
         arrayPoints = new ArrayList<LatLng>();
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // get handle to the fragment and pass it to resource id of the <fragment> element
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map); // get handle to the fragment and pass it to resource id of the <fragment> element
-        mapFragment.getMapAsync(this); // set the callback on the fragment
+                .findFragmentById(R.id.map);
+
+        // set the callback on the fragment
+        mapFragment.getMapAsync(this);
 
 
         // Getting reference to editText of the layout activity_maps
         final EditText etLocation = (EditText) findViewById(R.id.et_location);
+
         // Defining editText search event listener for the editText
         OnEditorActionListener findClickListener = new TextView.OnEditorActionListener() {
             @Override
@@ -79,6 +84,7 @@ public class MapsActivity extends FragmentActivity implements
                 return false;
             }
         };
+
         // Setting editText search click event listener for the keyboard search icon
         etLocation.setOnEditorActionListener(findClickListener);
 
@@ -142,6 +148,33 @@ public class MapsActivity extends FragmentActivity implements
             mMap.getUiSettings().setZoomControlsEnabled(true);
             mMap.setOnMapClickListener(this);
             mMap.setOnMapLongClickListener(this);
+            mMap.setOnMarkerDragListener(new OnMarkerDragListener() {
+
+                @Override
+                public void onMarkerDragStart(Marker marker) {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void onMarkerDragEnd(Marker marker) {
+                    // TODO Auto-generated method stub
+                }
+
+                @Override
+                public void onMarkerDrag(Marker marker) {
+
+                    // Getting the current position of the marker
+                    LatLng pos = marker.getPosition();
+
+                    // Updating the infowindow contents with the new marker coordinates
+                    marker.setSnippet(String.format("%.4f", pos.latitude) + "," + String.format("%" +
+                            ".4f", pos.longitude));
+
+                    // Updating the infowindow for the user
+                    marker.showInfoWindow();
+
+                }
+            });
         }
     }
 
@@ -150,6 +183,7 @@ public class MapsActivity extends FragmentActivity implements
 
         if (placeMarkerFlag) { // place marker only
             drawMarker(point);
+            //mMap.setOnMarkerDragListener(this);
         }
 
         // draw lines to connect the points on map
