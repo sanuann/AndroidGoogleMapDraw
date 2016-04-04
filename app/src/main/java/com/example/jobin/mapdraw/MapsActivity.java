@@ -4,9 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -21,37 +18,31 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback, OnMapClickListener, OnMapLongClickListener {
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MapsActivity";
-    private boolean place_marker_flag;
+    private boolean placeMarkerFlag;
     private GoogleMap mMap;
-    private ArrayList<LatLng> arrayPoints = null;
-    PolylineOptions polylineOptions;
-    MarkerOptions markerOptions;
-    LatLng latLng;
+    private ArrayList<LatLng> arrayPoints;
+    private PolylineOptions polylineOptions;
+    private MarkerOptions markerOptions;
+    private LatLng latLng;
 
 
     @Override
@@ -68,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements
 
         // Getting reference to editText of the layout activity_maps
         final EditText etLocation = (EditText) findViewById(R.id.et_location);
-         // Defining editText search event listener for the editText
+        // Defining editText search event listener for the editText
         OnEditorActionListener findClickListener = new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -77,16 +68,18 @@ public class MapsActivity extends FragmentActivity implements
                     String location = etLocation.getText().toString();
 
                     if (location != null && !location.equals("")) {
-                        InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        InputMethodManager imm = (InputMethodManager) v.getContext()
+                                .getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                        new GeocoderTask().execute(location);
+                        new GeocoderTask(latLng, markerOptions, mMap, v.getContext()).execute
+                                (location);
                     }
                     return true;
                 }
                 return false;
             }
         };
-         // Setting editText search click event listener for the keyboard search icon
+        // Setting editText search click event listener for the keyboard search icon
         etLocation.setOnEditorActionListener(findClickListener);
 
 
@@ -112,7 +105,7 @@ public class MapsActivity extends FragmentActivity implements
         Button place_marker = (Button) findViewById(R.id.btn_marker);
         place_marker.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                place_marker_flag = true;
+                placeMarkerFlag = true;
             }
 
         });
@@ -120,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements
         Button draw_line = (Button) findViewById(R.id.btn_line);
         draw_line.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                place_marker_flag = false;
+                placeMarkerFlag = false;
             }
 
         });
@@ -155,34 +148,14 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapClick(final LatLng point) {
 
-        if (place_marker_flag) { // place marker only
+        if (placeMarkerFlag) { // place marker only
             final MarkerOptions marker = new MarkerOptions();
             AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create(); //Read Update
 
-            class alertDialogOnClickListener implements DialogInterface.OnClickListener {
-                public void onClick(DialogInterface dialog, int which) {
-                    switch(which){
-                        case DialogInterface.BUTTON_POSITIVE:
-                            //add marker
-                            marker.position(point)
-                                    .draggable(true);
-                            mMap.addMarker(marker);
-                            //Toast.makeText(getApplicationContext(), "you have pressed Default", Toast.LENGTH_SHORT).show();
-                            break;
-                        case DialogInterface.BUTTON_NEGATIVE:
-                            //add custom marker
-                            BitmapDescriptor custom_icon = BitmapDescriptorFactory.fromResource(R.drawable.map_marker_flag_icon);
-                            marker.position(point)
-                                    .icon(custom_icon)
-                                    .draggable(true);
-                            mMap.addMarker(marker);
-                            //Toast.makeText(getApplicationContext(), "you have pressed Custom", Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                }
-            }
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new alertDialogOnClickListener());
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new alertDialogOnClickListener());
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new
+                    AlertDialogOnClickListener(point, marker, mMap));
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new
+                    AlertDialogOnClickListener(point, marker, mMap));
             alertDialog.show();
         }
 
@@ -233,55 +206,4 @@ public class MapsActivity extends FragmentActivity implements
         return true;
     }
 
-    // An AsyncTask class for accessing the GeoCoding Web Service
-    private class GeocoderTask extends AsyncTask<String, Void, List<Address>> {
-
-        @Override
-        protected List<Address> doInBackground(String... locationName) {
-            // Creating an instance of Geocoder class
-            Geocoder geocoder = new Geocoder(getBaseContext());
-            List<Address> addresses = null;
-
-            try {
-                // Getting a maximum of 3 Address that matches the input text
-                addresses = geocoder.getFromLocationName(locationName[0], 3);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return addresses;
-        }
-
-        @Override
-        protected void onPostExecute(List<Address> addresses) {
-
-            if (addresses == null || addresses.size() == 0) {
-                Toast.makeText(getBaseContext(), "No Location found", Toast.LENGTH_SHORT).show();
-            }
-
-            // Adding Markers on Google Map for each matching address
-            for (int i = 0; i < addresses.size(); i++) {
-
-                Address address = addresses.get(i);
-
-                // Creating an instance of GeoPoint, to display in Google Map
-                latLng = new LatLng(address.getLatitude(), address.getLongitude());
-
-                String addressText = String.format("%s, %s",
-                        address.getMaxAddressLineIndex() > 0 ? address.getAddressLine(0) : "",
-                        address.getCountryName());
-
-                markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-                markerOptions.title(addressText);
-
-                mMap.addMarker(markerOptions);
-
-                // Locate the first location
-                if (i == 0) {
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-                }
-            }
-        }
-    }
 }
