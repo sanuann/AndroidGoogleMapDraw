@@ -33,6 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements
         OnMapReadyCallback, OnMapClickListener, OnMapLongClickListener {
@@ -42,6 +43,7 @@ public class MapsActivity extends FragmentActivity implements
     private boolean placeMarkerFlag;
     private GoogleMap mMap;
     private ArrayList<LatLng> arrayPoints;
+    private ArrayList<ArrayList<LatLng>> arrayPointsList;
     private PolylineOptions polylineOptions;
     private MarkerOptions markerOptions;
     private LatLng latLng;
@@ -52,6 +54,7 @@ public class MapsActivity extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         arrayPoints = new ArrayList<LatLng>();
+        arrayPointsList = new ArrayList<>();
 
         // get handle to the fragment and pass it to resource id of the <fragment> element
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -119,6 +122,11 @@ public class MapsActivity extends FragmentActivity implements
         Button draw_line = (Button) findViewById(R.id.btn_line);
         draw_line.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                // Save and Reset last drawn line, if it exists
+                if(arrayPoints != null && arrayPoints.size() > 0){
+                    arrayPointsList.add(arrayPoints);
+                    arrayPoints = new ArrayList<LatLng>();
+                }
                 placeMarkerFlag = false;
             }
 
@@ -188,6 +196,7 @@ public class MapsActivity extends FragmentActivity implements
 
         // draw lines to connect the points on map
         else {
+
             drawLine(point);
         }
 
@@ -220,6 +229,7 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     private void drawLine(LatLng point) {
+
         // Creating an instance of Polyline options
         polylineOptions = new PolylineOptions();
 
@@ -229,6 +239,7 @@ public class MapsActivity extends FragmentActivity implements
 
         // Adding points to array to draw line and add line to google map
         arrayPoints.add(point);
+
         polylineOptions.addAll(arrayPoints);
         mMap.addPolyline(polylineOptions);
     }
@@ -236,7 +247,7 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapLongClick(LatLng point) {
         mMap.clear();
-        arrayPoints.clear();
+        //arrayPoints.clear();
     }
 
     /**
