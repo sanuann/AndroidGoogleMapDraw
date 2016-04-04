@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by Jobin on 4/3/16.
+ * Created by Sanu on 4/3/16.
  */
 // An AsyncTask class for accessing the GeoCoding Web Service
 public class GeocoderTask extends AsyncTask<String, Void, List<Address>> {

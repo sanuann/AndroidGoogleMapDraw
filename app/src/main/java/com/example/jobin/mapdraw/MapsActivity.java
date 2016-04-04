@@ -149,27 +149,54 @@ public class MapsActivity extends FragmentActivity implements
     public void onMapClick(final LatLng point) {
 
         if (placeMarkerFlag) { // place marker only
-            final MarkerOptions marker = new MarkerOptions();
-            AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create(); //Read Update
-
-            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new
-                    AlertDialogOnClickListener(point, marker, mMap));
-            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new
-                    AlertDialogOnClickListener(point, marker, mMap));
-            alertDialog.show();
+            drawMarker(point);
         }
 
         // draw lines to connect the points on map
         else {
-            // setting polyline in the map
-            polylineOptions = new PolylineOptions();
-            polylineOptions.color(Color.RED);
-            polylineOptions.width(5);
-            arrayPoints.add(point);
-            polylineOptions.addAll(arrayPoints);
-            mMap.addPolyline(polylineOptions);
+            drawLine(point);
         }
 
+    }
+
+    private void drawMarker(LatLng point) {
+        // Creating an instance of MarkerOptions
+        MarkerOptions marker = new MarkerOptions();
+
+        // Setting latitude and longitude for the marker
+        marker.position(point);
+
+        // Making this marker draggable
+        marker.draggable(true);
+
+        // Title for this marker
+        marker.title("Marker Coordinates");
+
+        // Coordinates for this marker as infowindow contents
+        marker.snippet(String.format("%.4f", point.latitude)+","+ String.format("%.4f", point
+                .longitude));
+
+        AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
+
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Default Icon", new
+                AlertDialogOnClickListener(point, marker, mMap));
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Custom Icon", new
+                AlertDialogOnClickListener(point, marker, mMap));
+        alertDialog.show();
+    }
+
+    private void drawLine(LatLng point) {
+        // Creating an instance of Polyline options
+        polylineOptions = new PolylineOptions();
+
+        // Setting color and width of Polyline on map
+        polylineOptions.color(Color.RED);
+        polylineOptions.width(5);
+
+        // Adding points to array to draw line and add line to google map
+        arrayPoints.add(point);
+        polylineOptions.addAll(arrayPoints);
+        mMap.addPolyline(polylineOptions);
     }
 
     @Override

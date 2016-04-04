@@ -9,7 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
- * Created by Jobin on 4/3/16.
+ * Created by Sanu on 4/3/16.
  */
 
 public class AlertDialogOnClickListener implements DialogInterface.OnClickListener {
@@ -31,20 +31,14 @@ public class AlertDialogOnClickListener implements DialogInterface.OnClickListen
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case DialogInterface.BUTTON_POSITIVE:
-                //add marker
-                marker.position(point)
-                        .draggable(true);
+                //adding marker on the google map
                 mMap.addMarker(marker);
-                //Toast.makeText(getApplicationContext(), "you have pressed Default", Toast.LENGTH_SHORT).show();
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
-                //add custom marker
+                //adding custom marker on google map
                 BitmapDescriptor custom_icon = BitmapDescriptorFactory.fromResource(R.drawable.map_marker_flag_icon);
-                marker.position(point)
-                        .icon(custom_icon)
-                        .draggable(true);
+                marker.icon(custom_icon);
                 mMap.addMarker(marker);
-                //Toast.makeText(getApplicationContext(), "you have pressed Custom", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
